@@ -1,0 +1,45 @@
+# === NODE ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === OS/IDE JUNK ===
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# === BUILD OUTPUT ===
+dist/
+build/
+.cache/
+.next/
+out/
+coverage/
+
+# === LOG FILES ===
+logs/
+*.log
+
+# === ENV FILES (we are NOT ignoring backend/.env because you want to share it) ===
+# Ignore all .env files EXCEPT the backend one:
+.env
+.env.local
+.env.*.local
+!Backend/.env
+
+# === BACKEND SPECIFIC (if needed) ===
+Backend/node_modules/
+Backend/logs/
+
+# === FRONTEND SPECIFIC ===
+Frontend/node_modules/
+Frontend/.next/
+Frontend/build/
+Frontend/.env    # ← only if you later add frontend .env and want to ignore
