@@ -27,97 +27,58 @@ const Signup = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
+    e.preventDefault();
+    setError('');
 
-  if (!formData.username || !formData.password) {
-    setError('Please enter both username and password');
-    return;
-  }
-
-  try {
-    setIsLoading(true);
-
-    // Debug: Log the API URL being used
-    const apiUrl = `${process.env.REACT_APP_API_BASE_URL}/auth/login`;
-    console.log('Making request to:', apiUrl);
-
-    const response = await axios.post(
-      apiUrl,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        timeout: 10000, // 10 second timeout
-      }
-    );
-
-    console.log('Login Response:', response);
-
-    const { token, user } = response.data;
-
-    if (!token || !user) {
-      throw new Error('Invalid login response. Missing token or user.');
+    // Client-side validation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
     }
 
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
 
-    window.dispatchEvent(new CustomEvent('userLogin', { detail: user }));
+    try {
+      setIsLoading(true);
+      
+      const { confirmPassword, ...userData } = formData; // Remove confirmPassword before sending
+      
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/auth/register`,
+        userData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-    setTimeout(() => {
-      if (user.role === 'instructor') {
-        navigate('/instructor/dashboard');
+      // Show success message and redirect to login
+      alert('Registration successful! Please login to continue.');
+      navigate('/login');
+      
+    } catch (err) {
+      console.error('Signup error:', err);
+      
+      if (err.response) {
+        // Handle specific error messages from backend
+        if (err.response.data.error === 'USER_EXISTS') {
+          setError(err.response.data.message || 'Username or email already exists');
+        } else if (err.response.data.error === 'VALIDATION_ERROR') {
+          setError('Validation failed. Please check your input.');
+        } else {
+          setError(err.response.data.message || 'Registration failed. Please try again.');
+        }
       } else {
-        navigate('/student/dashboard');
+        setError('Network error. Please check your connection.');
       }
-    }, 100);
-
-  } catch (err) {
-    console.error('Login error details:', {
-      message: err.message,
-      response: err.response,
-      request: err.request,
-      code: err.code
-    });
-
-    let errorMessage = 'Login failed. Please try again.';
-
-    if (err.code === 'ECONNABORTED') {
-      errorMessage = 'Request timeout. Please check your connection.';
-    } else if (err.code === 'ERR_NETWORK') {
-      errorMessage = 'Network error. Please check if the server is running.';
-    } else if (err.response) {
-      // Server responded with error status
-      const status = err.response.status;
-      switch (status) {
-        case 400:
-          errorMessage = err.response.data?.message || 'Invalid request data.';
-          break;
-        case 401:
-          errorMessage = 'Invalid username or password.';
-          break;
-        case 404:
-          errorMessage = 'Login endpoint not found. Please contact support.';
-          break;
-        case 500:
-          errorMessage = 'Server error. Please try again later.';
-          break;
-        default:
-          errorMessage = err.response.data?.message || `Server error (${status})`;
-      }
-    } else if (err.request) {
-      // Request was made but no response received
-      errorMessage = 'No response from server. Please check if the server is running.';
+    } finally {
+      setIsLoading(false);
     }
-
-    setError(errorMessage);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 p-4">
