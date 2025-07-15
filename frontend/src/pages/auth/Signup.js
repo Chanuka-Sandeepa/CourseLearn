@@ -47,7 +47,7 @@ const Signup = () => {
       const { confirmPassword, ...userData } = formData; // Remove confirmPassword before sending
       
       await axios.post(
-        `http://localhost:5000/api/auth/register`,
+        `${process.env.REACT_APP_API_BASE_URL}/auth/register`,
         userData,
         {
           headers: {
