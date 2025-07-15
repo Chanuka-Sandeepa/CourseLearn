@@ -19,63 +19,53 @@ const Login = () => {
     }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError('');
-
-  if (!formData.username || !formData.password) {
-    setError('Please enter both username and password');
-    return;
-  }
-
-  try {
-    setIsLoading(true);
-
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_BASE_URL}/auth/login`,
-      formData,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    );
-
-    // Debug: Log the full response to verify structure
-    console.log('Login Response:', response);
-
-    const { token, user } = response.data;
-
-    // Check if the response contains both token and user
-    if (!token || !user) {
-      throw new Error('Invalid login response. Missing token or user.');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    
+    if (!formData.username || !formData.password) {
+      setError('Please enter both username and password');
+      return;
     }
 
-    // Store the token and user data
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
+    try {
+      setIsLoading(true);
+      const response = await axios.post(
+        `http://localhost:5000/api/auth/login`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-    // Dispatch custom event to notify App component
-    window.dispatchEvent(new CustomEvent('userLogin', { detail: user }));
-
-    // Redirect based on user role
-    setTimeout(() => {
-      if (user.role === 'instructor') {
-        navigate('/instructor/dashboard');
-      } else {
-        navigate('/student/dashboard');
-      }
-    }, 100);
-
-  } catch (err) {
-    console.error('Login error:', err);
-    const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';
-    setError(errorMessage);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
+      // Store the token and user data
+      const { token, user } = response.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      // Dispatch custom event to notify App component
+      window.dispatchEvent(new CustomEvent('userLogin', { detail: user }));
+      
+      // Small delay to ensure state updates
+      setTimeout(() => {
+        // Redirect based on user role
+        if (user.role === 'instructor') {
+          navigate('/instructor/dashboard');
+        } else {
+          navigate('/student/dashboard');
+        }
+      }, 100);
+      
+    } catch (err) {
+      console.error('Login error:', err);
+      const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';
+      setError(errorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800">

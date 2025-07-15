@@ -18,9 +18,9 @@ const ProtectedRoute = ({ children, requiredRole }) => {
       try {
         const token = localStorage.getItem('token');
         const userJson = localStorage.getItem('user');
-
-        if (!token || !userJson || userJson === 'undefined') {
-          console.log('No valid token or user data found in localStorage');
+        
+        if (!token || !userJson) {
+          console.log('No token or user data found in localStorage');
           setIsAuthorized(false);
           setIsLoading(false);
           return;
@@ -29,6 +29,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
         const user = JSON.parse(userJson);
         console.log('User from localStorage:', user);
 
+        // Check if user has the required role
         if (requiredRole && user.role !== requiredRole) {
           console.log('User role does not match required role');
           setIsAuthorized(false);
@@ -62,6 +63,13 @@ const ProtectedRoute = ({ children, requiredRole }) => {
   return children;
 };
 
+// Check if user is logged in
+const isUserLoggedIn = () => {
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+  return !!(token && user);
+};
+
 function App() {
   const [showChatbot, setShowChatbot] = useState(false);
   const [user, setUser] = useState(null);
@@ -70,12 +78,12 @@ function App() {
     const checkUserStatus = () => {
       const token = localStorage.getItem('token');
       const userJson = localStorage.getItem('user');
-
-      if (token && userJson && userJson !== 'undefined') {
+      
+      if (token && userJson) {
         try {
           const userData = JSON.parse(userJson);
           setUser(userData);
-          setShowChatbot(userData.role === 'student');
+          setShowChatbot(userData.role === 'student'); // Only show for students
         } catch (error) {
           console.error('Error parsing user data:', error);
           setUser(null);
@@ -87,16 +95,19 @@ function App() {
       }
     };
 
+    // Check initial state
     checkUserStatus();
-
+    
+    // Listen for storage changes (login/logout)
     const handleStorageChange = (e) => {
       if (e.key === 'token' || e.key === 'user') {
         checkUserStatus();
       }
     };
 
+    // Listen for custom login event
     const handleLoginEvent = () => {
-      setTimeout(checkUserStatus, 100);
+      setTimeout(checkUserStatus, 100); // Small delay to ensure localStorage is updated
     };
 
     window.addEventListener('storage', handleStorageChange);
@@ -117,65 +128,46 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-
+          
           {/* Instructor Routes */}
-          <Route
-            path="/instructor/dashboard"
-            element={
-              <ProtectedRoute requiredRole="instructor">
-                <InstructorDashboard />
-              </ProtectedRoute>
-            }
-          />
-
+          <Route path="/instructor/dashboard" element={
+            <ProtectedRoute requiredRole="instructor">
+              <InstructorDashboard />
+            </ProtectedRoute>
+          } />
+          
           {/* Student Routes */}
-          <Route
-            path="/student/dashboard"
-            element={
-              <ProtectedRoute requiredRole="student">
-                <StudentDashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Static Pages */}
-          <Route path="/about" element={<StaticPage title="About Page" />} />
-          <Route path="/contact" element={<StaticPage title="Contact Page" />} />
-          <Route path="/help" element={<StaticPage title="Help Center" />} />
-          <Route path="/privacy" element={<StaticPage title="Privacy Policy" />} />
-          <Route path="/terms" element={<StaticPage title="Terms of Service" />} />
-          <Route path="/faq" element={<StaticPage title="FAQ" />} />
-
-          {/* 404 Not Found */}
-          <Route
-            path="*"
-            element={
-              <div className="flex flex-col items-center justify-center min-h-screen p-4 text-white">
-                <h1 className="mb-4 text-4xl font-bold">404</h1>
-                <p className="mb-6 text-xl">Page not found</p>
-                <a
-                  href="/"
-                  className="px-4 py-2 transition-colors bg-purple-600 rounded-md hover:bg-purple-700"
-                >
-                  Go to Home
-                </a>
-              </div>
-            }
-          />
+          <Route path="/student/dashboard" element={
+            <ProtectedRoute requiredRole="student">
+              <StudentDashboard />
+            </ProtectedRoute>
+          } />
+          
+          {/* Additional Pages */}
+          <Route path="/about" element={<div className="flex items-center justify-center min-h-screen text-white">About Page</div>} />
+          <Route path="/contact" element={<div className="flex items-center justify-center min-h-screen text-white">Contact Page</div>} />
+          <Route path="/help" element={<div className="flex items-center justify-center min-h-screen text-white">Help Center</div>} />
+          <Route path="/privacy" element={<div className="flex items-center justify-center min-h-screen text-white">Privacy Policy</div>} />
+          <Route path="/terms" element={<div className="flex items-center justify-center min-h-screen text-white">Terms of Service</div>} />
+          <Route path="/faq" element={<div className="flex items-center justify-center min-h-screen text-white">FAQ</div>} />
+          
+          {/* 404 Route */}
+          <Route path="*" element={
+            <div className="flex flex-col items-center justify-center min-h-screen p-4 text-white">
+              <h1 className="mb-4 text-4xl font-bold">404</h1>
+              <p className="mb-6 text-xl">Page not found</p>
+              <a href="/" className="px-4 py-2 transition-colors bg-purple-600 rounded-md hover:bg-purple-700">
+                Go to Home
+              </a>
+            </div>
+          } />
         </Routes>
-
-        {/* Chatbot visible only for student users */}
+        
+        {/* Chatbot - Only show if user is logged in and is a student */}
         {showChatbot && user && <ResponsiveChatbot />}
       </div>
     </Router>
   );
 }
-
-// Reusable static page component
-const StaticPage = ({ title }) => (
-  <div className="flex items-center justify-center min-h-screen text-white">
-    {title}
-  </div>
-);
 
 export default App;
