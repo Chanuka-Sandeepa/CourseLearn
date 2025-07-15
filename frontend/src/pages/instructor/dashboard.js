@@ -336,7 +336,7 @@ const InstructorDashboard = () => {
   const token = localStorage.getItem('token');
 
   // API Base URL
-  const API_BASE = 'http://localhost:5000/api';
+  const API_BASE = 'https://courselearn-2.onrender.com/api';
 
   // API helper function
   const apiCall = useCallback(async (endpoint, options = {}) => {

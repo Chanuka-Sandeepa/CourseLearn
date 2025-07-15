@@ -242,7 +242,7 @@ const StudentDashboard = () => {
       if (!token) return;
 
       setProfileLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/auth/profile`, {
+      const response = await axios.get(`https://courselearn-2.onrender.com/api/auth/profile`, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -288,7 +288,7 @@ const StudentDashboard = () => {
       }
       
       const response = await axios.put(
-        'http://localhost:5000/api/auth/profile',
+        'https://courselearn-2.onrender.com/api/auth/profile',
         profileForm,
         {
           headers: {
@@ -346,7 +346,7 @@ const StudentDashboard = () => {
       }
       
       await axios.put(
-        'http://localhost:5000/api/auth/change-password',
+        'https://courselearn-2.onrender.com/api/auth/change-password',
         {
           currentPassword: passwordForm.currentPassword,
           newPassword: passwordForm.newPassword
@@ -401,7 +401,7 @@ const StudentDashboard = () => {
     setAiLoading(true);
     try {
       try {
-        await axios.get('http://localhost:5000/api/auth/verify-token', {
+        await axios.get('https://courselearn-2.onrender.com/api/auth/verify-token', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
       } catch (verifyError) {
@@ -415,7 +415,7 @@ const StudentDashboard = () => {
       }
 
       const response = await axios.post(
-        'http://localhost:5000/api/chatgpt/recommendations',
+        'https://courselearn-2.onrender.com/api/chatgpt/recommendations',
         { prompt: aiPrompt },
         {
           headers: {
@@ -482,14 +482,14 @@ const StudentDashboard = () => {
       };
 
       const [enrollmentsRes, coursesRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/enrollments/my-enrollments`, { headers })
+        axios.get(`https://courselearn-2.onrender.com/api/enrollments/my-enrollments`, { headers })
         .then(response => response)
         .catch(err => {
           console.error('Detailed enrollment error:', err);
           return { data: { enrollments: [] } };
         }),
           
-        axios.get(`http://localhost:5000/api/courses`, { headers })
+        axios.get(`https://courselearn-2.onrender.com/api/courses`, { headers })
           .catch(err => {
             console.error('Error fetching courses:', err.response?.data || err.message);
             return { data: { courses: [] } };
@@ -551,7 +551,7 @@ const StudentDashboard = () => {
       }
       
       await axios.post(
-        `http://localhost:5000/api/enrollments/${courseId}`, 
+        `https://courselearn-2.onrender.com/api/enrollments/${courseId}`, 
         {},
         { 
           headers: { 
@@ -594,7 +594,7 @@ const StudentDashboard = () => {
       }
       
       const res = await axios.get(
-        `http://localhost:5000/api/courses/${courseId}`, 
+        `https://courselearn-2.onrender.com/api/courses/${courseId}`, 
         { 
           headers: { 
             'Authorization': `Bearer ${getToken()}`,
@@ -629,7 +629,7 @@ const StudentDashboard = () => {
       }
       
       await axios.put(
-        `http://localhost:5000/api/enrollments/${selectedEnrollment.id}/progress`, 
+        `https://courselearn-2.onrender.com/api/enrollments/${selectedEnrollment.id}/progress`, 
         { progress: Math.min(100, Math.max(0, Number(progress))) },
         { 
           headers: { 
@@ -687,7 +687,7 @@ const StudentDashboard = () => {
       }
       
       await axios.post(
-        `http://localhost:5000/api/enrollments/${selectedEnrollment.id}/review`, 
+        `https://courselearn-2.onrender.com/api/enrollments/${selectedEnrollment.id}/review`, 
         {
           rating: Number(review.rating),
           reviewComment: review.reviewComment || ''
