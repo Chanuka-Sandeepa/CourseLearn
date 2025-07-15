@@ -30,6 +30,7 @@ const handleSubmit = async (e) => {
 
   try {
     setIsLoading(true);
+
     const response = await axios.post(
       `${process.env.REACT_APP_API_BASE_URL}/auth/login`,
       formData,
@@ -40,7 +41,7 @@ const handleSubmit = async (e) => {
       }
     );
 
-    // Debugging: Log the full response to verify the structure
+    // Debug: Log the full response to verify structure
     console.log('Login Response:', response);
 
     const { token, user } = response.data;
