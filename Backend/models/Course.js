@@ -28,7 +28,6 @@ const courseSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: [true, 'Course category is required'],
     enum: [
       'Programming', 
       'Data Science', 

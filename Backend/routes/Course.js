@@ -187,7 +187,7 @@ router.post('/', authenticateToken, requireInstructor, async (req, res) => {
     } = req.body;
 
     // Validation
-    if (!title || !description || !content || !category || !level || !duration || price === undefined) {
+    if (!title || !description || !content || !level || !duration || price === undefined) {
       return res.status(400).json({
         message: 'All required fields must be provided',
         error: 'MISSING_FIELDS'
