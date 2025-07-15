@@ -19,7 +19,7 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
   setError('');
 
@@ -30,7 +30,6 @@ const Login = () => {
 
   try {
     setIsLoading(true);
-
     const response = await axios.post(
       `${process.env.REACT_APP_API_BASE_URL}/auth/login`,
       formData,
@@ -41,38 +40,35 @@ const Login = () => {
       }
     );
 
-    console.log("🔐 Login response:", response.data);
+    // Debugging: Log the full response to verify the structure
+    console.log('Login Response:', response);
 
     const { token, user } = response.data;
 
-    // Validate token and user before continuing
+    // Check if the response contains both token and user
     if (!token || !user) {
       throw new Error('Invalid login response. Missing token or user.');
     }
 
+    // Store the token and user data
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));
 
-    // Notify other components
+    // Dispatch custom event to notify App component
     window.dispatchEvent(new CustomEvent('userLogin', { detail: user }));
 
+    // Redirect based on user role
     setTimeout(() => {
-      if (user?.role === 'instructor') {
+      if (user.role === 'instructor') {
         navigate('/instructor/dashboard');
-      } else if (user?.role === 'student') {
-        navigate('/student/dashboard');
       } else {
-        setError('Unknown user role. Please contact support.');
+        navigate('/student/dashboard');
       }
     }, 100);
 
   } catch (err) {
-    console.error('❌ Login error:', err);
-
-    const errorMessage = err.response?.data?.message ||
-                         err.message ||
-                         'Login failed. Please try again.';
-
+    console.error('Login error:', err);
+    const errorMessage = err.response?.data?.message || 'Login failed. Please try again.';
     setError(errorMessage);
   } finally {
     setIsLoading(false);
